@@ -1,0 +1,26 @@
+{
+    "name": "rindow/rindow-math-matrix-matlibffi",
+    "type": "library",
+    "description": "Rindow Math Matrix's Drivers for Matlib with FFI",
+    "keywords": ["rindow","math","matrix","N-dimension","operation"],
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": "^8.1",
+        "ext-ffi": "*",
+        "interop-phpobjects/polite-math": "~1.0.6",
+        "rindow/rindow-math-matrix": "~2.0.0",
+        "rindow/rindow-math-buffer-ffi": "~1.0.0",
+        "rindow/rindow-openblas-ffi": "~1.0.0",
+        "rindow/rindow-matlib-ffi": "~1.0.0",
+        "rindow/rindow-opencl-ffi": "~1.0.0",
+        "rindow/rindow-clblast-ffi": "~1.0.0"
+    },
+    "suggest": {
+        "rindow/rindow-math-plot": "for OpenCL tunning"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rindow\\Math\\Matrix\\Drivers\\MatlibFFI\\": "src/"
+        }
+    }
+}
