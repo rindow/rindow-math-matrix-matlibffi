@@ -1,5 +1,5 @@
-Rindow Math Matrix's Drivers for Matlib with PHP extensions
-===========================================================
+Rindow Math Matrix's Drivers for Matlib with PHP FFI
+====================================================
 Status:
 [![Build Status](https://github.com/rindow/rindow-math-matrix-matlibffi/workflows/tests/badge.svg)](https://github.com/rindow/rindow-math-matrix-matlibffi/actions)
 [![Downloads](https://img.shields.io/packagist/dt/rindow/rindow-math-matrix-matlibffi)](https://packagist.org/packages/rindow/rindow-math-matrix-matlibffi)
@@ -12,7 +12,7 @@ Rindow Math Matrix is the fundamental package for scientific matrix operation
 
 - A powerful N-dimensional array object
 - Sophisticated (broadcasting) functions
-- Tools for integrating C/C++ through the FFI (or PHP extensions)
+- Tools for integrating C/C++ through the FFI
 - Useful linear algebra and random number capabilities
 
 Please see the documents on [Rindow mathematics projects](https://rindow.github.io/mathematics/) web pages.
