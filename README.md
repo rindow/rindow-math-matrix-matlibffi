@@ -83,7 +83,7 @@ And then set the rindow-matlib to serial mode for use with PHP.
 ```shell
 $ mkdir -p /your/project/directory
 $ cd /your/project/directory
-$ sudo apt install libopenblas-base libpapacke
+$ sudo apt install libopenblas-base liblapacke
 $ wget https://github.com/rindow/rindow-matlib/releases/download/X.X.X/rindow-matlib_X.X.X_amd64.deb
 $ sudo apt install ./rindow-matlib_X.X.X_amd64.deb
 $ sudo update-alternatives --config librindowmatlib.so

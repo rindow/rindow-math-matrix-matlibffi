@@ -28,5 +28,5 @@ jobs:
           version: 10.5
           php_version: ${{ matrix.php }}
           php_extensions: ffi
-          args: --filter ReleaseTest
+          filter: ReleaseTest
 
