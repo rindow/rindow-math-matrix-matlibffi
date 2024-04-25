@@ -11,7 +11,7 @@ use Rindow\Math\Matrix\Drivers\AbstractMatlibService;
 
 class MatlibFFI extends AbstractMatlibService
 {
-    protected $name = 'matlib_ffi';
+    protected string $name = 'matlib_ffi';
 
     public function __construct(
         object $bufferFactory=null,

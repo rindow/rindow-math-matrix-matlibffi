@@ -61,7 +61,7 @@ class MatlibFFITest extends TestCase
         if($this->isAvailable(['libopenblas.dll','libopenblas.so','libopenblas.so.0'])&&
             $this->isAvailable(['rindowmatlib.dll','librindowmatlib.so'])&&
             $this->isAvailable(['OpenCL.dll','libOpenCL.so.1'])&&
-            $this->isAvailable(['clblast.dll','libclblast.so'])&&
+            $this->isAvailable(['clblast.dll','libclblast.so.1'])&&
             class_exists('Rindow\Matlib\FFI\MatlibFactory')) {
             $this->assertEquals(Service::LV_ACCELERATED,$service->serviceLevel());
         } elseif(
@@ -69,7 +69,7 @@ class MatlibFFITest extends TestCase
             $this->isAvailable(['rindowmatlib.dll','librindowmatlib.so']) &&
             class_exists('Rindow\Matlib\FFI\MatlibFactory') &&
             (!$this->isAvailable(['OpenCL.dll','libOpenCL.so.1'])||
-             !$this->isAvailable(['clblast.dll','libclblast.so'])||
+             !$this->isAvailable(['clblast.dll','libclblast.so.1'])||
              !class_exists('Rindow\OpenCL\FFI\OpenCLFactory'))) {
             $this->assertEquals(Service::LV_ADVANCED,$service->serviceLevel());
         } elseif(

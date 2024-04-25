@@ -5,5 +5,8 @@
         <testsuite name="rindowtest">
             <directory>./RindowTest</directory>
         </testsuite>
+        <testsuite name="mathtest">
+            <directory>../../rindow-math-matrix/tests/RindowTest</directory>
+        </testsuite>
     </testsuites>
 </phpunit>

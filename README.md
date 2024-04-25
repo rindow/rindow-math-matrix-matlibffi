@@ -1,5 +1,6 @@
 Rindow Math Matrix's Drivers for Matlib with PHP FFI
 ====================================================
+
 Status:
 [![Build Status](https://github.com/rindow/rindow-math-matrix-matlibffi/workflows/tests/badge.svg)](https://github.com/rindow/rindow-math-matrix-matlibffi/actions)
 [![Downloads](https://img.shields.io/packagist/dt/rindow/rindow-math-matrix-matlibffi)](https://packagist.org/packages/rindow/rindow-math-matrix-matlibffi)
@@ -28,7 +29,7 @@ Requirements
 - OpenBLAS 0.3.20 or later
 - OpenCL 1.1 or later
 - CLBlast 1.5.2 or later
-- Windows 10/11 or Ubuntu 20.04 LTS or later
+- Windows 10/11 or Linux(Ubuntu 20.04 or Debian 12 or later)
 
 ### Download pre-build binaries from each projects
 
@@ -40,7 +41,8 @@ Download the pre-build binary files from each project's release page.
   - [OpenBLAS](https://github.com/xianyi/OpenBLAS/releases)
   - [CLBlast](https://github.com/CNugteren/CLBlast/releases)
 
-### Setup for Windows
+Setup for Windows
+=================
 
 Download the binary file, unzip it, and copy it to the execution directory.
 
@@ -63,12 +65,21 @@ C:\TMP> PATH %PATH%;\path\to\binary\directories\bin
 C:\TMP> cd \your\progject\directory
 C:\PRJ> composer require rindow/rindow-math-matrix
 C:\PRJ> composer require rindow/rindow-math-matrix-matlibffi
+C:\PRJ> vendor/bin/rindow-math-matrix
+Service Level   : Accelerated
+Buffer Factory  : Rindow\Math\Buffer\FFI\BufferFactory
+BLAS Driver     : Rindow\OpenBLAS\FFI\Blas(THREAD)
+LAPACK Driver   : Rindow\OpenBLAS\FFI\Lapack
+Math Driver     : Rindow\Matlib\FFI\Matlib(OPENMP)
+OpenCL Factory  : Rindow\OpenCL\FFI\OpenCLFactory
+CLBlast Factory : Rindow\CLBlast\FFI\CLBlastFactory
 ```
 
 The OpenCL 1.2 environment is already set up if you are using the Windows standard driver.
 
 
-### Setup for Ubuntu
+Setup for Linux
+===============
 
 Install each library using the apt command.
 
@@ -78,24 +89,22 @@ $ php -m | grep FFI
 FFI
 ```
 
-Install the fast matrix calculation library.
-And then set the rindow-matlib to serial mode for use with PHP.
+Download the pre-build binary file.
+
+- https://github.com/rindow/rindow-matlib/releases
+
+Please install using the apt command. 
 ```shell
-$ mkdir -p /your/project/directory
-$ cd /your/project/directory
-$ sudo apt install libopenblas-base liblapacke
-$ wget https://github.com/rindow/rindow-matlib/releases/download/X.X.X/rindow-matlib_X.X.X_amd64.deb
 $ sudo apt install ./rindow-matlib_X.X.X_amd64.deb
-$ sudo update-alternatives --config librindowmatlib.so
-There are 2 choices for the alternative librindowmatlib.so (providing /usr/lib/librindowmatlib.so).
+```
 
-  Selection    Path                                             Priority   Status
-------------------------------------------------------------
-* 0            /usr/lib/rindowmatlib-openmp/librindowmatlib.so   95        auto mode
-  1            /usr/lib/rindowmatlib-openmp/librindowmatlib.so   95        manual mode
-  2            /usr/lib/rindowmatlib-serial/librindowmatlib.so   90        manual mode
+Since rindow-matlib currently uses OpenMP, choose the OpenMP version for OpenBLAS as well.
 
-Press <enter> to keep the current choice[*], or type selection number: 2
+Using the pthread version of OpenBLAS can cause conflicts and become unstable and slow.
+This issue does not occur on Windows.
+
+```shell
+$ sudo apt install libopenblas0-openmp
 ```
 
 If you want to use GPU, install the OpenCL environment.
@@ -115,22 +124,36 @@ $ sudo ln -s /usr/lib/clc /usr/local/usr/lib/clc
 ```
 
 And then, Install the fast matrix calculation library for OpenCL.
-Please download the CLBlast installation script from the rindow-clblast-ffi release page.
+If you use Ubuntu22.04 or Debian 12 or later, You can install it from distribution packages.
+```shell
+$ sudo apt install libclblast1
+```
 
+If You use Ubuntu20.04 or Debian 11, You need to download clblast from Github and make deb file.
+Please download the CLBlast installation script from the rindow-clblast-ffi release page.
 ```shell
 $ wget https://github.com/rindow/rindow-clblast-ffi/releases/download/X.X.X/clblast-packdeb.zip
 $ unzip clblast-packdeb.zip
 $ sh clblast-packdeb.sh
-$ sudo apt install ./clblast_X.X.X-1+ubuntuXX.XX_amd64.deb
+$ sudo apt install ./clblast_X.X.X_amd64.deb
 ```
 
-Install the rindow-math-matrix on your project directory.
+And then, Install the rindow-math-matrix on your project directory.
 ```shell
 $ composer require rindow/rindow-math-matrix
 $ composer require rindow/rindow-math-matrix-matlibffi
+$ vendor/bin/rindow-math-matrix
+Service Level   : Accelerated
+Buffer Factory  : Rindow\Math\Buffer\FFI\BufferFactory
+BLAS Driver     : Rindow\OpenBLAS\FFI\Blas(OPENMP)
+LAPACK Driver   : Rindow\OpenBLAS\FFI\Lapack
+Math Driver     : Rindow\Matlib\FFI\Matlib(OPENMP)
+OpenCL Factory  : Rindow\OpenCL\FFI\OpenCLFactory
+CLBlast Factory : Rindow\CLBlast\FFI\CLBlastFactory
 ```
 
 ### Check driver status
+
 You can check the driver settings by running the sample below.
 ```php
 <?php
@@ -145,14 +168,57 @@ echo $mo->service()->info();
 
 ```shell
 $ php status.php
-Service Level: Accelerated
-Buffer Factory: Rindow\Math\Buffer\FFI\BufferFactory
-BLAS Driver: Rindow\OpenBLAS\FFI\Blas
-LAPACK Driver: Rindow\OpenBLAS\FFI\Lapack
-Math Driver: Rindow\Matlib\FFI\Matlib
+Service Level   : Accelerated
+Buffer Factory  : Rindow\Math\Buffer\FFI\BufferFactory
+BLAS Driver     : Rindow\OpenBLAS\FFI\Blas(OPENMP)
+LAPACK Driver   : Rindow\OpenBLAS\FFI\Lapack
+Math Driver     : Rindow\Matlib\FFI\Matlib(OPENMP)
+OpenCL Factory  : Rindow\OpenCL\FFI\OpenCLFactory
+CLBlast Factory : Rindow\CLBlast\FFI\CLBlastFactory
 ```
 
-### Acceleration with GPU
+### Troubleshooting for Linux
+
+Since rindow-matlib currently uses OpenMP, choose the OpenMP version for OpenBLAS as well.
+
+Using the pthread version of OpenBLAS can cause conflicts and become unstable and slow.
+This issue does not occur on Windows.
+
+If you have already installed the pthread version of OpenBLAS,
+```shell
+$ sudo apt remove libopenblas0-pthread
+```
+
+But if you can't remove it, you can switch to it using the update-alternatives command.
+
+```shell
+$ sudo update-alternatives --config libopenblas.so.0-x86_64-linux-gnu
+$ sudo update-alternatives --config liblapack.so.3-x86_64-linux-gnu
+```
+
+If you really want to use the pthread version of OpenBLAS, please switch to the serial version of rindow-matlib.
+
+There are no operational mode conflicts with OpenBLAS on Windows.
+
+But, If you really want to use the pthread version of OpenBLAS, please switch to the serial version of rindow-matlib.
+
+```shell
+$ sudo update-alternatives --config librindowmatlib.so
+There are 2 choices for the alternative librindowmatlib.so (providing /usr/lib/librindowmatlib.so).
+
+  Selection    Path                                             Priority   Status
+------------------------------------------------------------
+* 0            /usr/lib/rindowmatlib-openmp/librindowmatlib.so   95        auto mode
+  1            /usr/lib/rindowmatlib-openmp/librindowmatlib.so   95        manual mode
+  2            /usr/lib/rindowmatlib-serial/librindowmatlib.so   90        manual mode
+
+Press <enter> to keep the current choice[*], or type selection number: 2
+```
+Choose the "rindowmatlib-serial".
+
+
+Acceleration with GPU
+=====================
 
 You can use GPU acceleration on OpenCL.
 
@@ -169,6 +235,6 @@ If you have testable hardware, please test using the proprietary driver.
 
 On the other hand, I tested with Ivy-bridge of Intel CPU and Integrated GPU.
 
-Windows 10 standard OpenCL driver worked fine, but it was very slow and occasionally crashed.
+It now works comfortably with various adjustments on Windows 10 Standard OpenCL Driver. However, the old Intel Integrated GPU is not very high compared to its CPU performance, so please use the right person in the right place.
 
 And it worked fine and fast in Ubuntu 20.04 + beignet-opencl-icd environment.
