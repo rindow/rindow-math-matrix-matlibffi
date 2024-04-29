@@ -41,7 +41,7 @@ jobs:
       - name: Checkout math-matrix tests
         run: |
           ( cd .. && git clone https://github.com/rindow/rindow-math-matrix )
-          ( cd ../rindow-math-matrix && git checkout 2.0.3 )
+          ( cd ../rindow-math-matrix && git checkout 2.0.4 )
 
       #- name: Composer
       #  uses: php-actions/composer@v6

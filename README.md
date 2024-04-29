@@ -77,6 +77,13 @@ CLBlast Factory : Rindow\CLBlast\FFI\CLBlastFactory
 
 The OpenCL 1.2 environment is already set up if you are using the Windows standard driver.
 
+If you add the -v option as shown below, the driver loading status at boot time will be displayed.
+It will help with troubleshooting.
+
+```shell
+C:\PRJ> vendor/bin/rindow-math-matrix -v
+```
+
 
 Setup for Linux
 ===============
@@ -104,7 +111,7 @@ Using the pthread version of OpenBLAS can cause conflicts and become unstable an
 This issue does not occur on Windows.
 
 ```shell
-$ sudo apt install libopenblas0-openmp
+$ sudo apt install libopenblas0-openmp liblapacke
 ```
 
 If you want to use GPU, install the OpenCL environment.
@@ -150,6 +157,13 @@ LAPACK Driver   : Rindow\OpenBLAS\FFI\Lapack
 Math Driver     : Rindow\Matlib\FFI\Matlib(OPENMP)
 OpenCL Factory  : Rindow\OpenCL\FFI\OpenCLFactory
 CLBlast Factory : Rindow\CLBlast\FFI\CLBlastFactory
+```
+
+If you add the -v option as shown below, the driver loading status at boot time will be displayed.
+It will help with troubleshooting.
+
+```shell
+$ vendor/bin/rindow-math-matrix -v
 ```
 
 ### Check driver status
