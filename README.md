@@ -23,13 +23,12 @@ Rindow Math Matrix's repository is [here](https://github.com/rindow/rindow-math-
 Requirements
 ============
 
-- PHP 8.1 or PHP8.2 or PHP8.3
-- Rindow Math Matrix v2.0.0
+- PHP 8.1 or PHP8.2 or PHP8.3 or PHP8.4
+- Rindow Math Matrix v2.0 or later
 - Rindow Matlib 1.0.0 or later
 - OpenBLAS 0.3.20 or later
 - OpenCL 1.1 or later
 - CLBlast 1.5.2 or later
-- Windows 10/11 or Linux(Ubuntu 20.04 or Debian 12 or later)
 
 ### Download pre-build binaries from each projects
 
@@ -38,7 +37,7 @@ Download the pre-build binary files from each project's release page.
 
 - Pre-build binaries
   - [Rindow Matlib](https://github.com/rindow/rindow-matlib/releases)
-  - [OpenBLAS](https://github.com/xianyi/OpenBLAS/releases)
+  - [OpenBLAS](https://github.com/OpenMathLib/OpenBLAS/releases)
   - [CLBlast](https://github.com/CNugteren/CLBlast/releases)
 
 Setup for Windows
@@ -105,13 +104,12 @@ Please install using the apt command.
 $ sudo apt install ./rindow-matlib_X.X.X_amd64.deb
 ```
 
-Since rindow-matlib currently uses OpenMP, choose the OpenMP version for OpenBLAS as well.
-
-Using the pthread version of OpenBLAS can cause conflicts and become unstable and slow.
+Since rindow-matlib currently uses ptheads, so you should choose the pthread version for OpenBLAS as well.
+In version 1.0 of Rindow-matlib we recommended the OpenMP version, but now we have changed our policy and are recommending the pthread version.
 This issue does not occur on Windows.
 
 ```shell
-$ sudo apt install libopenblas0-openmp liblapacke
+$ sudo apt install libopenblas0 liblapacke
 ```
 
 If you want to use GPU, install the OpenCL environment.
@@ -193,14 +191,16 @@ CLBlast Factory : Rindow\CLBlast\FFI\CLBlastFactory
 
 ### Troubleshooting for Linux
 
-Since rindow-matlib currently uses OpenMP, choose the OpenMP version for OpenBLAS as well.
+Since rindow-matlib currently uses ptheads, so you should choose the pthread version for OpenBLAS as well.
+In version 1.0 of Rindow-matlib we recommended the OpenMP version, but now we have changed our policy and are recommending the pthread version.
 
-Using the pthread version of OpenBLAS can cause conflicts and become unstable and slow.
+Using the OpenMP version of OpenBLAS can cause conflicts and become unstable and slow.
 This issue does not occur on Windows.
 
-If you have already installed the pthread version of OpenBLAS,
+If you have already installed the OpenMP version of OpenBLAS, you can delete it and install pthread version.
 ```shell
-$ sudo apt remove libopenblas0-pthread
+$ sudo apt install libopenblas0-pthread liblapacke
+$ sudo apt remove libopenblas0-openmp
 ```
 
 But if you can't remove it, you can switch to it using the update-alternatives command.
@@ -210,9 +210,7 @@ $ sudo update-alternatives --config libopenblas.so.0-x86_64-linux-gnu
 $ sudo update-alternatives --config liblapack.so.3-x86_64-linux-gnu
 ```
 
-If you really want to use the pthread version of OpenBLAS, please switch to the serial version of rindow-matlib.
-
-There are no operational mode conflicts with OpenBLAS on Windows.
+If you really want to use the OpenMP version of OpenBLAS, please switch to the serial version of rindow-matlib.
 
 But, If you really want to use the pthread version of OpenBLAS, please switch to the serial version of rindow-matlib.
 
@@ -225,6 +223,7 @@ There are 2 choices for the alternative librindowmatlib.so (providing /usr/lib/l
 * 0            /usr/lib/rindowmatlib-openmp/librindowmatlib.so   95        auto mode
   1            /usr/lib/rindowmatlib-openmp/librindowmatlib.so   95        manual mode
   2            /usr/lib/rindowmatlib-serial/librindowmatlib.so   90        manual mode
+  3            /usr/lib/rindowmatlib-thread/librindowmatlib.so   100       manual mode
 
 Press <enter> to keep the current choice[*], or type selection number: 2
 ```
@@ -240,15 +239,13 @@ You can use GPU acceleration on OpenCL.
 
 This OpenCL support extension works better in your environment and helps speed up your laptop environment without n-NVIDIA.
 
-Tested on Ivy-bridge and AMD's Bobcat architecture APU.
+Tested on Coffee Lake iGPU.
 
 In the Windows environment, Integrated GPU usage was more effective than CPU, and it worked comfortably.
 
 However, OLD AMD APU on Linux, libclc used in linux standard mesa-opencl-icd is very buggy and slow.
 If you have testable hardware, please test using the proprietary driver.
 
-On the other hand, I tested with Ivy-bridge of Intel CPU and Integrated GPU.
+It now works comfortably with various adjustments on Windows Standard OpenCL Driver. However, the old Intel Integrated GPU is not very high compared to its CPU performance, so please use the right person in the right place.
 
-It now works comfortably with various adjustments on Windows 10 Standard OpenCL Driver. However, the old Intel Integrated GPU is not very high compared to its CPU performance, so please use the right person in the right place.
-
-And it worked fine and fast in Ubuntu 20.04 + beignet-opencl-icd environment.
+And it worked fine and fast in Ubuntu 24.04 + intel-opencl-icd environment.
