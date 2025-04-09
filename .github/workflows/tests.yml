@@ -10,7 +10,7 @@ jobs:
       matlib: 1.1.0
       testlib: 1.1.0
       matlibrepo: rindow/rindow-matlib
-      mathmatrix: 2.1.0
+      mathmatrix: 2.1.1
       mathmatrixrepo: rindow/rindow-math-matrix
 
     strategy:
@@ -46,6 +46,11 @@ jobs:
             php: '8.4'
             phpunit: '11.5'
             ffi: 'ffi'
+          - name: macOS
+            os: macos-latest
+            php: '8.4'
+            phpunit: '11.5'
+            ffi: 'ffi'
   
     steps:
       - name: Setup PHP ${{ matrix.php }}
@@ -54,16 +59,18 @@ jobs:
           php-version: ${{ matrix.php }}
           # PHP Extras
           coverage: none
-          tools: composer, phpunit:${{ matrix.phpunit }}, phpstan
+          tools: composer, phpstan
           #ini-values: "memory_limit=512M"
           extensions: ${{ matrix.ffi }}
+        env:
+          fail-fast: true
 
       - name: Install Libs (Linux)
         if: ${{ startsWith(matrix.os, 'ubuntu-')  && matrix.ffi == 'ffi' }}
         run: |
-            sudo apt install -y libopenblas0 liblapacke
-            wget https://github.com/${{ env.matlibrepo }}/releases/download/${{ env.testlib }}/rindow-matlib_${{ env.matlib }}-`lsb_release -sr`_amd64.deb
-            sudo apt install -y ./rindow-matlib_${{ env.matlib }}-`lsb_release -sr`_amd64.deb
+          sudo apt install -y libopenblas0 liblapacke
+          wget https://github.com/${{ env.matlibrepo }}/releases/download/${{ env.testlib }}/rindow-matlib_${{ env.matlib }}-`lsb_release -sr`_amd64.deb
+          sudo apt install -y ./rindow-matlib_${{ env.matlib }}-`lsb_release -sr`_amd64.deb
 
       - name: Checkout codes
         uses: "actions/checkout@v4"
@@ -73,36 +80,17 @@ jobs:
         run: |
           git clone --branch ${{ env.mathmatrix }} https://github.com/${{ env.mathmatrixrepo }} ../rindow-math-matrix
 
-      #- name: Composer
-      #  uses: php-actions/composer@v6
-      #  with:
-      #    php_version: ${{ matrix.php }}
-      #    php_extensions: ffi
-      
       - name: Run Composer Update
-        run: composer update
-
-      #- name: PHP Static Analysys
-      #  uses: php-actions/phpstan@v3
-      #  with:
-      #    php_version: ${{ matrix.php }}
-      #    path: src/
+        run: |
+          composer update
+          composer require --dev phpunit/phpunit=^${{ matrix.phpunit }}
 
       - name: PHP Static Analysys
         run: phpstan
 
-      #- name: PHPUnit Tests
-      #  uses: php-actions/phpunit@v3
-      #  with:
-      #    configuration: tests/phpunit.xml
-      #    version: 10.5
-      #    php_version: ${{ matrix.php }}
-      #    php_extensions: ffi
-      #    filter: ReleaseTest
-
       - name: PHPUnit Tests with ${{ matrix.ffi }}.
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-        run: phpunit -c tests
+        run: vendor/bin/phpunit -c tests
 
       - name: PHPUnit Tests
         if: ${{ startsWith(matrix.os, 'windows-') }}
@@ -120,16 +108,16 @@ jobs:
           $env:PATH = "$matlibDir/bin;$env:PATH"
           dir $matlibDir/bin
           git clone  --branch ${{ env.mathmatrix }} https://github.com/${{ env.mathmatrixrepo }} ../rindow-math-matrix
-          phpunit -c tests
+          vendor/bin/phpunit -c tests
 
       - name: PHPUnit Tests (macOS)
-        if: ${{ startsWith(matrix.os, 'macos-latest') }}
+        if: ${{ startsWith(matrix.os, 'macos-') }}
         run: |
-          brew install libomp
+          # brew install libomp
           curl https://github.com/${{ env.matlibrepo }}/releases/download/${{ env.testlib }}/rindow-matlib-${{ env.matlib }}-Darwin-arm64.tar.gz -O -L
           tar -xzf rindow-matlib-${{ env.matlib }}-Darwin-arm64.tar.gz
           sudo cp -r usr/include /usr/local/
           sudo cp -r usr/lib /usr/local/
           ( cd .. && git clone https://github.com/${{ env.mathmatrixrepo }} )
           ( cd ../rindow-math-matrix && git checkout ${{ env.mathmatrix }} )
-          phpunit -c tests
+          vendor/bin/phpunit -c tests

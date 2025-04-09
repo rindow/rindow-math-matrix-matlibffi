@@ -26,7 +26,7 @@ Requirements
 - PHP 8.1 or PHP8.2 or PHP8.3 or PHP8.4
 - Rindow Math Matrix v2.0 or later
 - Rindow Matlib 1.0.0 or later
-- OpenBLAS 0.3.20 or later
+- OpenBLAS 0.3.20 or later(Linux/Windows), vecLib(macOS)
 - OpenCL 1.1 or later
 - CLBlast 1.5.2 or later
 
@@ -69,7 +69,7 @@ Service Level   : Accelerated
 Buffer Factory  : Rindow\Math\Buffer\FFI\BufferFactory
 BLAS Driver     : Rindow\OpenBLAS\FFI\Blas(THREAD)
 LAPACK Driver   : Rindow\OpenBLAS\FFI\Lapack
-Math Driver     : Rindow\Matlib\FFI\Matlib(OPENMP)
+Math Driver     : Rindow\Matlib\FFI\Matlib(THREAD)
 OpenCL Factory  : Rindow\OpenCL\FFI\OpenCLFactory
 CLBlast Factory : Rindow\CLBlast\FFI\CLBlastFactory
 ```
@@ -134,7 +134,7 @@ If you use Ubuntu22.04 or Debian 12 or later, You can install it from distributi
 $ sudo apt install libclblast1
 ```
 
-If You use Ubuntu20.04 or Debian 11, You need to download clblast from Github and make deb file.
+If You use Ubuntu20.04 or Debian 11, You need to download clblast from Github and make deb file. 
 Please download the CLBlast installation script from the rindow-clblast-ffi release page.
 ```shell
 $ wget https://github.com/rindow/rindow-clblast-ffi/releases/download/X.X.X/clblast-packdeb.zip
@@ -142,6 +142,8 @@ $ unzip clblast-packdeb.zip
 $ sh clblast-packdeb.sh
 $ sudo apt install ./clblast_X.X.X_amd64.deb
 ```
+> *CAUTION*: However, The rindow-matlib v1.1 do not support Ubuntu 20.04/Debian 11. If you want to use Ubuntu 20.04, please build it from source code or use rindow-matlib v1.0.
+
 
 And then, Install the rindow-math-matrix on your project directory.
 ```shell
@@ -150,9 +152,9 @@ $ composer require rindow/rindow-math-matrix-matlibffi
 $ vendor/bin/rindow-math-matrix
 Service Level   : Accelerated
 Buffer Factory  : Rindow\Math\Buffer\FFI\BufferFactory
-BLAS Driver     : Rindow\OpenBLAS\FFI\Blas(OPENMP)
+BLAS Driver     : Rindow\OpenBLAS\FFI\Blas(THREAD)
 LAPACK Driver   : Rindow\OpenBLAS\FFI\Lapack
-Math Driver     : Rindow\Matlib\FFI\Matlib(OPENMP)
+Math Driver     : Rindow\Matlib\FFI\Matlib(THREAD)
 OpenCL Factory  : Rindow\OpenCL\FFI\OpenCLFactory
 CLBlast Factory : Rindow\CLBlast\FFI\CLBlastFactory
 ```
@@ -163,6 +165,50 @@ It will help with troubleshooting.
 ```shell
 $ vendor/bin/rindow-math-matrix -v
 ```
+
+Setup for macOS
+===============
+
+Install each library using the apt command.
+
+Make sure FFI extension is enabled.
+```shell
+$ php -m | grep FFI
+FFI
+```
+
+Download the pre-build binary file.
+
+- https://github.com/rindow/rindow-matlib/releases
+
+Please install using the apt command. 
+```shell
+$ curl https://github.com/rindow/rindow-matlib/releases/download/X.X.X/rindow-matlib-X.X.X-Darwin-XXXX.tar.gz -O -L
+$ tar -xzf rindow-matlib-XXX-Darwin-XXX.tar.gz
+$ sudo cp -r usr/include /usr/local/
+$ sudo cp -r usr/lib /usr/local/
+```
+
+If you want to use OpenMP mode instead of native thread mode, instantiate OpenMP. In most cases OpenMP mode is not needed.
+```shell
+$ brew install libomp
+```
+
+
+And then, Install the rindow-math-matrix on your project directory.
+```shell
+$ composer require rindow/rindow-math-matrix
+$ composer require rindow/rindow-math-matrix-matlibffi
+$ vendor/bin/rindow-math-matrix
+Service Level   : Advanced
+Buffer Factory  : Rindow\Math\Buffer\FFI\BufferFactory
+BLAS Driver     : Rindow\OpenBLAS\FFI\Blas(THREAD)
+LAPACK Driver   : Rindow\OpenBLAS\FFI\Lapack
+Math Driver     : Rindow\Matlib\FFI\Matlib(THREAD)
+```
+
+OpenCL is not supported on macOS.
+
 
 ### Check driver status
 
@@ -182,15 +228,14 @@ echo $mo->service()->info();
 $ php status.php
 Service Level   : Accelerated
 Buffer Factory  : Rindow\Math\Buffer\FFI\BufferFactory
-BLAS Driver     : Rindow\OpenBLAS\FFI\Blas(OPENMP)
+BLAS Driver     : Rindow\OpenBLAS\FFI\Blas(THREAD)
 LAPACK Driver   : Rindow\OpenBLAS\FFI\Lapack
-Math Driver     : Rindow\Matlib\FFI\Matlib(OPENMP)
+Math Driver     : Rindow\Matlib\FFI\Matlib(THREAD)
 OpenCL Factory  : Rindow\OpenCL\FFI\OpenCLFactory
 CLBlast Factory : Rindow\CLBlast\FFI\CLBlastFactory
 ```
 
 ### Troubleshooting for Linux
-
 Since rindow-matlib currently uses ptheads, so you should choose the pthread version for OpenBLAS as well.
 In version 1.0 of Rindow-matlib we recommended the OpenMP version, but now we have changed our policy and are recommending the pthread version.
 
@@ -210,24 +255,22 @@ $ sudo update-alternatives --config libopenblas.so.0-x86_64-linux-gnu
 $ sudo update-alternatives --config liblapack.so.3-x86_64-linux-gnu
 ```
 
-If you really want to use the OpenMP version of OpenBLAS, please switch to the serial version of rindow-matlib.
-
-But, If you really want to use the pthread version of OpenBLAS, please switch to the serial version of rindow-matlib.
+If you really want to use the OpenMP version of OpenBLAS, please switch to the OpenMP version of rindow-matlib.
 
 ```shell
 $ sudo update-alternatives --config librindowmatlib.so
-There are 2 choices for the alternative librindowmatlib.so (providing /usr/lib/librindowmatlib.so).
+There are 1 choices for the alternative librindowmatlib.so (providing /usr/lib/librindowmatlib.so).
 
   Selection    Path                                             Priority   Status
 ------------------------------------------------------------
-* 0            /usr/lib/rindowmatlib-openmp/librindowmatlib.so   95        auto mode
+* 0            /usr/lib/rindowmatlib-thread/librindowmatlib.so   95        auto mode
   1            /usr/lib/rindowmatlib-openmp/librindowmatlib.so   95        manual mode
   2            /usr/lib/rindowmatlib-serial/librindowmatlib.so   90        manual mode
   3            /usr/lib/rindowmatlib-thread/librindowmatlib.so   100       manual mode
 
-Press <enter> to keep the current choice[*], or type selection number: 2
+Press <enter> to keep the current choice[*], or type selection number: 1
 ```
-Choose the "rindowmatlib-serial".
+Choose the "rindowmatlib-openmp".
 
 
 Acceleration with GPU
