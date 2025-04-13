@@ -7,10 +7,10 @@ jobs:
   tests:
     runs-on: ${{ matrix.os }}
     env:
-      matlib: 1.1.0
-      testlib: 1.1.0
+      matlib: 1.1.1
+      testlib: 1.1.1
       matlibrepo: rindow/rindow-matlib
-      mathmatrix: 2.1.1
+      mathmatrix: 2.1.2
       mathmatrixrepo: rindow/rindow-math-matrix
 
     strategy:
@@ -19,35 +19,48 @@ jobs:
         include:
           - name: PHP8.1 with FFI
             os: ubuntu-latest
+            arch: 'amd64'
             php: '8.1'
             phpunit: '10.5'
             ffi: 'ffi'
-          - name: PHP8.1 without FFI
-            os: ubuntu-latest
-            php: '8.1'
-            phpunit: '10.5'
-            ffi: ''
+#          - name: PHP8.1 without FFI
+#            os: ubuntu-latest
+#            arch: 'amd64'
+#            php: '8.1'
+#            phpunit: '10.5'
+#            ffi: ''
 #          - name: PHP8.3
 #            os: ubuntu-latest
+#            arch: 'amd64'
 #            php: '8.3'
 #            phpunit: '11.5'
           - name: PHP8.4 with FFI
             os: ubuntu-latest
+            arch: 'amd64'
             php: '8.4'
             phpunit: '11.5'
             ffi: 'ffi'
-          - name: PHP8.4 without FFI
-            os: ubuntu-latest
-            php: '8.4'
-            phpunit: '11.5'
-            ffi: ''
+#          - name: PHP8.4 without FFI
+#            os: ubuntu-latest
+#            arch: 'amd64'
+#            php: '8.4'
+#            phpunit: '11.5'
+#            ffi: ''
           - name: Windows
             os: windows-latest
+            arch: 'x64'
             php: '8.4'
             phpunit: '11.5'
             ffi: 'ffi'
           - name: macOS
             os: macos-latest
+            arch: 'arm64'
+            php: '8.4'
+            phpunit: '11.5'
+            ffi: 'ffi'
+          - name: macOS-x86_64
+            os: macos-13
+            arch: 'x86_64'
             php: '8.4'
             phpunit: '11.5'
             ffi: 'ffi'
@@ -66,11 +79,20 @@ jobs:
           fail-fast: true
 
       - name: Install Libs (Linux)
-        if: ${{ startsWith(matrix.os, 'ubuntu-')  && matrix.ffi == 'ffi' }}
+        if: ${{ startsWith(matrix.os, 'ubuntu-') && matrix.ffi == 'ffi' }}
         run: |
           sudo apt install -y libopenblas0 liblapacke
           wget https://github.com/${{ env.matlibrepo }}/releases/download/${{ env.testlib }}/rindow-matlib_${{ env.matlib }}-`lsb_release -sr`_amd64.deb
           sudo apt install -y ./rindow-matlib_${{ env.matlib }}-`lsb_release -sr`_amd64.deb
+
+      - name: Install Libs (macOS)
+        if: ${{ startsWith(matrix.os, 'macos-') && matrix.ffi == 'ffi' }}
+        run: |
+          # brew install libomp
+          curl https://github.com/${{ env.matlibrepo }}/releases/download/${{ env.testlib }}/rindow-matlib-${{ env.matlib }}-Darwin-${{ matrix.arch }}.tar.gz -O -L
+          tar -xzf rindow-matlib-${{ env.matlib }}-Darwin-${{ matrix.arch }}.tar.gz
+          sudo cp -r usr/include /usr/local/
+          sudo cp -r usr/lib /usr/local/
 
       - name: Checkout codes
         uses: "actions/checkout@v4"
@@ -88,12 +110,12 @@ jobs:
       - name: PHP Static Analysys
         run: phpstan
 
-      - name: PHPUnit Tests with ${{ matrix.ffi }}.
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-        run: vendor/bin/phpunit -c tests
+      - name: PHPUnit Tests (Linux)
+        if: ${{ startsWith(matrix.os, 'ubuntu-') && matrix.ffi == 'ffi' }}
+        run: vendor/bin/phpunit -c tests/checkadvanced.xml
 
-      - name: PHPUnit Tests
-        if: ${{ startsWith(matrix.os, 'windows-') }}
+      - name: PHPUnit Tests (Windows)
+        if: ${{ startsWith(matrix.os, 'windows-') && matrix.ffi == 'ffi' }}
         run: |
           Invoke-WebRequest -Uri https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.27/OpenBLAS-0.3.27-x64.zip -OutFile openblas.zip
           Expand-Archive -Path openblas.zip
@@ -108,16 +130,40 @@ jobs:
           $env:PATH = "$matlibDir/bin;$env:PATH"
           dir $matlibDir/bin
           git clone  --branch ${{ env.mathmatrix }} https://github.com/${{ env.mathmatrixrepo }} ../rindow-math-matrix
-          vendor/bin/phpunit -c tests
+          vendor/bin/phpunit -c tests/checkadvanced.xml
 
       - name: PHPUnit Tests (macOS)
-        if: ${{ startsWith(matrix.os, 'macos-') }}
+        if: ${{ startsWith(matrix.os, 'macos-') && matrix.ffi == 'ffi' }}
         run: |
-          # brew install libomp
-          curl https://github.com/${{ env.matlibrepo }}/releases/download/${{ env.testlib }}/rindow-matlib-${{ env.matlib }}-Darwin-arm64.tar.gz -O -L
-          tar -xzf rindow-matlib-${{ env.matlib }}-Darwin-arm64.tar.gz
-          sudo cp -r usr/include /usr/local/
-          sudo cp -r usr/lib /usr/local/
-          ( cd .. && git clone https://github.com/${{ env.mathmatrixrepo }} )
-          ( cd ../rindow-math-matrix && git checkout ${{ env.mathmatrix }} )
+          git clone --branch ${{ env.mathmatrix }} https://github.com/${{ env.mathmatrixrepo }} ../rindow-math-matrix
+          vendor/bin/rindow-math-matrix -v
+          vendor/bin/phpunit -c tests/checkadvanced.xml
+
+      - name: PHPUnit Tests (Linux) without FFI.
+        if: ${{ startsWith(matrix.os, 'ubuntu-') && matrix.ffi == '' }}
+        run: vendor/bin/phpunit -c tests
+
+      - name: PHPUnit Tests (Windows) without FFI.
+        if: ${{ startsWith(matrix.os, 'windows-') && matrix.ffi == '' }}
+        run: |
+          Invoke-WebRequest -Uri https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.27/OpenBLAS-0.3.27-x64.zip -OutFile openblas.zip
+          Expand-Archive -Path openblas.zip
+          $currentDir = (Get-Location).Path
+          $OpenBLAS_DIR = Join-Path -Path $currentDir -ChildPath 'openblas'
+          $env:PATH = "$OpenBLAS_DIR/bin;$env:PATH"
+          dir $OpenBLAS_DIR/bin
+          Invoke-WebRequest -Uri https://github.com/${{ env.matlibrepo }}/releases/download/${{ env.testlib }}/rindow-matlib-${{ env.matlib }}-win64.zip -OutFile matlib.zip
+          Expand-Archive -Path matlib.zip
+          $currentDir = (Get-Location).Path
+          $matlibDir = Join-Path -Path $currentDir -ChildPath 'matlib'
+          $env:PATH = "$matlibDir/bin;$env:PATH"
+          dir $matlibDir/bin
+          git clone --branch ${{ env.mathmatrix }} https://github.com/${{ env.mathmatrixrepo }} ../rindow-math-matrix
+          vendor/bin/phpunit -c tests
+
+      - name: PHPUnit Tests (macOS) without FFI.
+        if: ${{ startsWith(matrix.os, 'macos-') && matrix.ffi == '' }}
+        run: |
+          git clone --branch ${{ env.mathmatrix }} https://github.com/${{ env.mathmatrixrepo }} ../rindow-math-matrix
+          vendor/bin/rindow-math-matrix -v
           vendor/bin/phpunit -c tests

@@ -58,23 +58,28 @@ class MatlibFFITest extends TestCase
     public function testServiceLevel()
     {
         $service = $this->newService();
-        if($this->isAvailable(['libopenblas.dll','libopenblas.so','libopenblas.so.0'])&&
-            $this->isAvailable(['rindowmatlib.dll','librindowmatlib.so'])&&
-            $this->isAvailable(['OpenCL.dll','libOpenCL.so.1'])&&
-            $this->isAvailable(['clblast.dll','libclblast.so.1'])&&
+        if($this->isAvailable(['libopenblas.dll','libopenblas.so','libopenblas.so.0',
+                '/System/Library/Frameworks/Accelerate.framework/Versions/Current/Frameworks/vecLib.framework/vecLib'])&&
+            $this->isAvailable(['rindowmatlib.dll','librindowmatlib.so','librindowmatlib.dylib'])&&
+            $this->isAvailable(['OpenCL.dll','libOpenCL.so.1',
+                '/System/Library/Frameworks/OpenCL.framework/OpenCL'])&&
+            $this->isAvailable(['clblast.dll','libclblast.so.1','libclblast.dylib'])&&
             class_exists('Rindow\Matlib\FFI\MatlibFactory')) {
             $this->assertEquals(Service::LV_ACCELERATED,$service->serviceLevel());
         } elseif(
-            $this->isAvailable(['libopenblas.dll','libopenblas.so','libopenblas.so.0'])&&
-            $this->isAvailable(['rindowmatlib.dll','librindowmatlib.so']) &&
+            $this->isAvailable(['libopenblas.dll','libopenblas.so','libopenblas.so.0',
+                '/System/Library/Frameworks/Accelerate.framework/Versions/Current/Frameworks/vecLib.framework/vecLib'])&&
+            $this->isAvailable(['rindowmatlib.dll','librindowmatlib.so','librindowmatlib.dylib']) &&
             class_exists('Rindow\Matlib\FFI\MatlibFactory') &&
-            (!$this->isAvailable(['OpenCL.dll','libOpenCL.so.1'])||
-             !$this->isAvailable(['clblast.dll','libclblast.so.1'])||
+            (!$this->isAvailable(['OpenCL.dll','libOpenCL.so.1',
+                '/System/Library/Frameworks/OpenCL.framework/OpenCL'])||
+             !$this->isAvailable(['clblast.dll','libclblast.so.1','libclblast.dylib'])||
              !class_exists('Rindow\OpenCL\FFI\OpenCLFactory'))) {
             $this->assertEquals(Service::LV_ADVANCED,$service->serviceLevel());
         } elseif(
-            !$this->isAvailable(['libopenblas.dll','libopenblas.so','libopenblas.so.0'])||
-            !$this->isAvailable(['rindowmatlib.dll','librindowmatlib.so'])||
+            !$this->isAvailable(['libopenblas.dll','libopenblas.so','libopenblas.so.0',
+                '/System/Library/Frameworks/Accelerate.framework/Versions/Current/Frameworks/vecLib.framework/vecLib'])||
+            !$this->isAvailable(['rindowmatlib.dll','librindowmatlib.so','librindowmatlib.dylib'])||
             !class_exists('Rindow\Matlib\FFI\MatlibFactory')) {
             $this->assertEquals(Service::LV_BASIC,$service->serviceLevel());
         } else {
